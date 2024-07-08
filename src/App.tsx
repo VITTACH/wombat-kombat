@@ -77,19 +77,34 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleCardClick = (e: React.TouchEvent<HTMLDivElement>) => {
-    const card = e.currentTarget;
+  const applyCardTransform = (
+    e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>,
+    isTouchEvent: boolean
+  ) => {
+    const card = e.currentTarget as HTMLDivElement;
     const rect = card.getBoundingClientRect();
-    const lastTouch = e.touches[(e.touches.length-1)];
-    const x = lastTouch.clientX - rect.left - rect.width / 2;
-    const y = lastTouch.clientY - rect.top - rect.height / 2;
+    const x = (isTouchEvent ? (e as React.TouchEvent<HTMLDivElement>).touches[0].clientX : (e as React.MouseEvent<HTMLDivElement>).clientX) - rect.left - rect.width / 2;
+    const y = (isTouchEvent ? (e as React.TouchEvent<HTMLDivElement>).touches[0].clientY : (e as React.MouseEvent<HTMLDivElement>).clientY) - rect.top - rect.height / 2;
+  
     card.style.transform = `perspective(1000px) rotateX(${-y / 10}deg) rotateY(${x / 10}deg)`;
     setTimeout(() => {
       card.style.transform = '';
     }, 100);
-
+  };
+  
+  const handleCardTouch = (e: React.TouchEvent<HTMLDivElement>) => {
+    applyCardTransform(e, true);
+  
+    const lastTouch = e.touches[e.touches.length - 1];
     setPoints(points + pointsToAdd);
     setClicks([...clicks, { id: Date.now(), x: lastTouch.pageX, y: lastTouch.pageY }]);
+  };
+  
+  const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    applyCardTransform(e, false);
+  
+    setPoints(points + pointsToAdd);
+    setClicks([...clicks, { id: Date.now(), x: e.pageX, y: e.pageY }]);
   };
 
   const handleAnimationEnd = (id: number) => {
@@ -140,7 +155,7 @@ const App: React.FC = () => {
               <Hamster size={24} className="text-[#d4d4d4]" />
             </div>
             <div>
-              <p className="text-sm">VITTACH (CEO)</p>
+              <p className="text-sm">Anti Danilevskiy (CEO)</p>
             </div>
           </div>
           <div className="flex items-center justify-between space-x-4 mt-1">
@@ -207,7 +222,8 @@ const App: React.FC = () => {
             <div className="px-4 mt-4 flex justify-center">
               <div
                 className="w-80 h-80 p-4 rounded-full circle-outer"
-                onTouchStart={handleCardClick}
+                onTouchStart={handleCardTouch}
+                onClick={handleCardClick}
               >
                 <div className="w-full h-full rounded-full circle-inner">
                   <img src={mainCharacter} alt="Main Character" className="w-full h-full" />
