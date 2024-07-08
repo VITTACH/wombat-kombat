@@ -9,5 +9,14 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Инициализация Web App API
+        Telegram.WebApp.ready();
+
+        // Установка приложения в полноэкранный режим
+        Telegram.WebApp.expand();
+    </script>
   </body>
 </html>
