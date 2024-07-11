@@ -15,24 +15,22 @@ const App: React.FC = () => {
 
         // Обработка нажатия кнопки "назад"
         WebApp.BackButton.onClick(() => {
-        navigate(-1);
+            navigate(-1);
         });
 
         // Слушаем изменения в истории для управления кнопкой "назад"
         if (location.pathname !== '/') {
-        WebApp.BackButton.show();
+            WebApp.BackButton.show();
         } else {
-        WebApp.BackButton.hide();
+            WebApp.BackButton.hide();
         }
     }, [location, navigate]);
-    
+
     return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<Home/>} />
-                <Route path="/about" element={<About/>} />
-            </Routes>
-        </Router>
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+        </Routes>
     );
 };
 
