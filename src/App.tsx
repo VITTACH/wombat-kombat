@@ -33,5 +33,10 @@ const App: React.FC = () => {
         </Routes>
     );
 };
+const Root = () => (
+    <Router>
+        <App />
+    </Router>
+);
 
-export default App;
+export default Root;
