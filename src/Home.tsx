@@ -172,13 +172,13 @@ const Home: React.FC = () => {
     return `+${profit}`;
   };
 
-  // useEffect(() => {
-  //   const pointsPerSecond = Math.floor(profitPerHour / 3600);
-  //   const interval = setInterval(() => {
-  //     setPoints(prevPoints => prevPoints + pointsPerSecond);
-  //   }, 1000);
-  //   return () => clearInterval(interval);
-  // }, [profitPerHour]);
+  useEffect(() => {
+    const pointsPerSecond = Math.floor(profitPerHour / 3600);
+    const interval = setInterval(() => {
+      setPoints(prevPoints => prevPoints + pointsPerSecond);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [profitPerHour]);
 
   useEffect(() => {
     fetchClicks();
@@ -323,23 +323,12 @@ const Home: React.FC = () => {
         </div>
 
         <div>
-          <h1>Top Players</h1>
-          <table>
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Clicks</th>
-              </tr>
-            </thead>
-            <tbody id="top-players">
-              {topPlayers.map((player, index) => (
-                <tr key={index}>
-                  <td>{player.username}</td>
-                  <td>{player.clicks}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {topPlayers.map((player, index) => (
+            <tr key={index}>
+              <td>{player.username}</td>
+              <td>{player.clicks}</td>
+            </tr>
+          ))}
         </div>
       </div>
 

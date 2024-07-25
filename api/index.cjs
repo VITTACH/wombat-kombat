@@ -4,11 +4,6 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-// Обслуживание статических файлов из директории dist
-app.use(express.static(path.join(__dirname, '../dist')));
-
-app.use(express.json());
-
 
 // Настройка подключения
 const client = new Client({
@@ -42,6 +37,11 @@ client.query(`
         console.log('Table created or verified successfully.');
     }
 });
+
+// Обслуживание статических файлов из директории dist
+app.use(express.static(path.join(__dirname, '../dist')));
+// Поддержка обработки json запросов
+app.use(express.json());
 
 app.get('/api/clicks', (req, res) => {
     const userId = req.query.userId;
@@ -82,9 +82,9 @@ app.post('/api/upgrade', (req, res) => {
     }
 
     const upgrades = {
-        1: { cost: 10, auto_clicks: 1 },
-        2: { cost: 100, auto_clicks: 5 },
-        3: { cost: 1000, auto_clicks: 15 },
+        1: { cost: 10, auto_clicks: 10000 },
+        2: { cost: 100, auto_clicks: 50000 },
+        3: { cost: 1000, auto_clicks: 150000 },
     };
 
     const upgrade = upgrades[level];
