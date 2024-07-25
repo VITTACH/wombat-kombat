@@ -211,6 +211,10 @@ const Home: React.FC = () => {
     fetchClicks();
   };
 
+  const handleBuyUpgrade = () => {
+    buyUpgrade(1);
+  };
+
   const buyUpgrade = async (level: number) => {
     const response = await fetch(`${apiUrl}/api/upgrade`, {
       method: 'POST',
@@ -274,7 +278,9 @@ const Home: React.FC = () => {
           <div className="absolute top-[2px] left-0 right-0 bottom-0 bg-[#1d2025] rounded-t-[46px]">
             <div className={`shake ${isMounted ? 'active' : ''}`}>
               <div className="px-4 mt-6 flex justify-between gap-2">
-                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative">
+                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative"
+                  onClick={handleBuyUpgrade}
+                >
                   <div className="dot"></div>
                   <img src={dailyReward} alt="Daily Reward" className="mx-auto w-12 h-12" />
                   <p className="text-[10px] text-center text-white mt-1">Daily reward</p>
@@ -316,6 +322,26 @@ const Home: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        <div>
+          <h1>Top Players</h1>
+          <table>
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Clicks</th>
+              </tr>
+            </thead>
+            <tbody id="top-players">
+              {topPlayers.map((player, index) => (
+                <tr key={index}>
+                  <td>{player.username}</td>
+                  <td>{player.clicks}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
