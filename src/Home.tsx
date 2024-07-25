@@ -9,7 +9,7 @@ import Friends from './icons/Friends';
 import Coins from './icons/Coins';
 import { Link } from 'react-router-dom';
 
-const apiUrl = "http://localhost:5173";
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5173";
 
 type Player = {
   username: string;
@@ -68,6 +68,22 @@ const Home: React.FC = () => {
   const [topPlayers, setTopPlayers] = useState<Player[]>([]);
 
   const [isMounted, setIsMounted] = useState(false); // состояние для отслеживания загрузки страницы
+
+  const [ipAddress, setIpAddress] = useState<string>('');
+
+  useEffect(() => {
+      async function fetchIpAddress() {
+          try {
+              const response = await fetch('https://api.ipify.org?format=json');
+              const data = await response.json();
+              setIpAddress(data.ip);
+          } catch (error) {
+              console.error('Error fetching IP address:', error);
+          }
+      }
+
+      fetchIpAddress();
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -240,7 +256,7 @@ const Home: React.FC = () => {
               <Hamster size={24} className="text-[#d4d4d4]" />
             </div>
             <div>
-              <p className="text-sm">{username} (CEO)</p>
+              <p className="text-sm">{ipAddress} (CEO)</p>
             </div>
           </div>
           <div className="flex items-center justify-between space-x-4 mt-1">
