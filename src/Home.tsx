@@ -9,8 +9,6 @@ import Friends from './icons/Friends';
 import Coins from './icons/Coins';
 import { Link } from 'react-router-dom';
 
-const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5173";
-
 type Player = {
   username: string;
   clicks: number;
@@ -188,20 +186,20 @@ const Home: React.FC = () => {
   }, []);
 
   const fetchClicks = async () => {
-    const response = await fetch(`${apiUrl}/api/clicks?userId=${userId}`);
+    const response = await fetch(`/api/clicks?userId=${userId}`);
     const data: ClicksResponse = await response.json();
     setPoints(data.clicks);
     setAutoClicks(data.auto_clicks);
   };
 
   const fetchTopPlayers = async () => {
-    const response = await fetch(`${apiUrl}/api/top-players`);
+    const response = await fetch(`/api/top-players`);
     const data: TopPlayersResponse = await response.json();
     setTopPlayers(data.players);
   };
 
   const updateClicks = async (newClicks: number) => {
-    await fetch(`${apiUrl}/api/clicks`, {
+    await fetch(`/api/clicks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -216,7 +214,7 @@ const Home: React.FC = () => {
   };
 
   const buyUpgrade = async (level: number) => {
-    const response = await fetch(`${apiUrl}/api/upgrade`, {
+    const response = await fetch(`/api/upgrade`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

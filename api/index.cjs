@@ -2,6 +2,14 @@ const { Client } = require('pg');
 const express = require('express');
 const path = require('path');
 
+const app = express();
+const PORT = process.env.PORT || 3000;
+// Обслуживание статических файлов из директории dist
+app.use(express.static(path.join(__dirname, '../dist')));
+
+app.use(express.json());
+
+
 // Настройка подключения
 const client = new Client({
     user: 'postgres',
@@ -34,13 +42,6 @@ client.query(`
         console.log('Table created or verified successfully.');
     }
 });
-
-const app = express();
-
-app.use(express.json());
-
-// Обслуживание статических файлов из директории dist
-app.use(express.static(path.join(__dirname, 'dist')));
 
 app.get('/api/clicks', (req, res) => {
     const userId = req.query.userId;
@@ -130,7 +131,8 @@ app.get('/api/top-players', (req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`HTTPS server running on port ${PORT}`);
 });
+
+module.exports = app;
