@@ -3,18 +3,24 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "server.cjs",
   "scripts": {
-    "dev": "vite",
     "build": "tsc -b && vite build",
+    "dev:server": "node server.cjs",
+    "dev:vite": "vite",
+    "dev": "concurrently \"vite\" \"node server.cjs\"",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
     "@twa-dev/sdk": "^7.0.0",
     "@types/react-router-dom": "^5.3.3",
+    "@vercel/postgres": "^0.9.0",
+    "express": "^4.19.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.24.1"
+    "react-router-dom": "^6.24.1",
+    "telegraf": "^4.16.3"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
@@ -23,12 +29,14 @@
     "@typescript-eslint/parser": "^7.13.1",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
+    "pg": "^8.12.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.2.2",
-    "vite": "^5.3.1"
+    "vite": "^5.3.4"
   }
 }

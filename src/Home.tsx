@@ -9,6 +9,22 @@ import Friends from './icons/Friends';
 import Coins from './icons/Coins';
 import { Link } from 'react-router-dom';
 
+const apiUrl = "http://localhost:5173";
+
+type Player = {
+  username: string;
+  clicks: number;
+};
+
+type ClicksResponse = {
+  clicks: number;
+  auto_clicks: number;
+};
+
+type TopPlayersResponse = {
+  players: Player[];
+};
+
 const Home: React.FC = () => {
   const levelNames = [
     "Bronze",    // From 0 to 4999 coins
@@ -36,33 +52,32 @@ const Home: React.FC = () => {
     1000000000// Lord
   ];
 
+
   const [levelIndex, setLevelIndex] = useState(6);
-  const [points, setPoints] = useState(22749365);
+  const [points, setPoints] = useState(0);
   const [clicks, setClicks] = useState<{ id: number, x: number, y: number }[]>([]);
   const pointsToAdd = 11;
-  const profitPerHour = 126420;
 
   const [dailyRewardTimeLeft, setDailyRewardTimeLeft] = useState("");
   const [dailyCipherTimeLeft, setDailyCipherTimeLeft] = useState("");
   const [dailyComboTimeLeft, setDailyComboTimeLeft] = useState("");
+  const [username, setUsername] = useState<string | null>("vittach");
+  const [userId, setUserId] = useState("-1");
 
-  const [username, setUsername] = useState<string | null>(null);
+  const [profitPerHour, setAutoClicks] = useState<number>(0);
+  const [topPlayers, setTopPlayers] = useState<Player[]>([]);
 
   const [isMounted, setIsMounted] = useState(false); // состояние для отслеживания загрузки страницы
 
   useEffect(() => {
-    setIsMounted(true); // Устанавливаем состояние, когда компонент загружен
+    setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    // Убедитесь, что Telegram Web App API доступен
-    if (window.Telegram.WebApp.initDataUnsafe) {
-      const user = window.Telegram.WebApp.initDataUnsafe.user;
-      if (user && user.username) {
-        setUsername(user.username);
-      } else {
-        setUsername('Anti Danilevskii');
-      }
+    const user = window.Telegram.WebApp.initDataUnsafe.user;
+    if (user && user.username) {
+      setUsername(user.username);
+      setUserId(user.id);
     }
   }, []);
 
@@ -117,14 +132,14 @@ const Home: React.FC = () => {
     applyCardTransform(e, true);
 
     const lastTouch = e.touches[e.touches.length - 1];
-    setPoints(points + pointsToAdd);
+    updateClicks(points + pointsToAdd);
     setClicks([...clicks, { id: Date.now(), x: lastTouch.pageX, y: lastTouch.pageY }]);
   };
 
   const handleCardClick = (e: React.MouseEvent<HTMLDivElement>) => {
     applyCardTransform(e, false);
 
-    setPoints(points + pointsToAdd);
+    updateClicks(points + pointsToAdd);
     setClicks([...clicks, { id: Date.now(), x: e.pageX, y: e.pageY }]);
   };
 
@@ -159,13 +174,58 @@ const Home: React.FC = () => {
     return `+${profit}`;
   };
 
+  // useEffect(() => {
+  //   const pointsPerSecond = Math.floor(profitPerHour / 3600);
+  //   const interval = setInterval(() => {
+  //     setPoints(prevPoints => prevPoints + pointsPerSecond);
+  //   }, 1000);
+  //   return () => clearInterval(interval);
+  // }, [profitPerHour]);
+
   useEffect(() => {
-    const pointsPerSecond = Math.floor(profitPerHour / 3600);
-    const interval = setInterval(() => {
-      setPoints(prevPoints => prevPoints + pointsPerSecond);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [profitPerHour]);
+    fetchClicks();
+    fetchTopPlayers();
+  }, []);
+
+  const fetchClicks = async () => {
+    const response = await fetch(`${apiUrl}/api/clicks?userId=${userId}`);
+    const data: ClicksResponse = await response.json();
+    setPoints(data.clicks);
+    setAutoClicks(data.auto_clicks);
+  };
+
+  const fetchTopPlayers = async () => {
+    const response = await fetch(`${apiUrl}/api/top-players`);
+    const data: TopPlayersResponse = await response.json();
+    setTopPlayers(data.players);
+  };
+
+  const updateClicks = async (newClicks: number) => {
+    await fetch(`${apiUrl}/api/clicks`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId, username, clicks: newClicks })
+    });
+    fetchClicks();
+  };
+
+  const buyUpgrade = async (level: number) => {
+    const response = await fetch(`${apiUrl}/api/upgrade`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ userId, level })
+    });
+    const data = await response.json();
+    if (data.success) {
+      fetchClicks();
+    } else {
+      alert('Недостаточно кликов');
+    }
+  };
 
   return (
     <div className="bg-black flex justify-center">
@@ -246,7 +306,7 @@ const Home: React.FC = () => {
               <div className="px-4 mt-4 flex justify-center">
                 <div
                   className="w-80 h-80 p-4 rounded-full circle-outer"
-                  onTouchStart={handleCardTouch}
+                  onTouchEnd={handleCardTouch}
                   onClick={handleCardClick}
                 >
                   <div className="w-full h-full rounded-full circle-inner">
@@ -296,7 +356,7 @@ const Home: React.FC = () => {
           }}
           onAnimationEnd={() => handleAnimationEnd(click.id)}
         >
-          {pointsToAdd}
+          +{pointsToAdd}
         </div>
       ))}
     </div>
