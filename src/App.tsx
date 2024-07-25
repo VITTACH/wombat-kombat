@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './Home';
-import About from './about/About';
+import About from './About';
 import { useNavigate, useLocation } from 'react-router-dom';
 import WebApp from '@twa-dev/sdk';
 
