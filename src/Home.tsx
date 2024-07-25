@@ -69,6 +69,22 @@ const Home: React.FC = () => {
 
   const [isMounted, setIsMounted] = useState(false); // состояние для отслеживания загрузки страницы
 
+  const [ipAddress, setIpAddress] = useState<string>('');
+
+  useEffect(() => {
+      async function fetchIpAddress() {
+          try {
+              const response = await fetch('https://api.ipify.org?format=json');
+              const data = await response.json();
+              setIpAddress(data.ip);
+          } catch (error) {
+              console.error('Error fetching IP address:', error);
+          }
+      }
+
+      fetchIpAddress();
+  }, []);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -240,7 +256,7 @@ const Home: React.FC = () => {
               <Hamster size={24} className="text-[#d4d4d4]" />
             </div>
             <div>
-              <p className="text-sm">{username} (CEO)</p>
+              <p className="text-sm">{ipAddress} (CEO)</p>
             </div>
           </div>
           <div className="flex items-center justify-between space-x-4 mt-1">
