@@ -29,7 +29,7 @@ const About: React.FC = () => {
 
     return (
         <div className="bg-black flex justify-center">
-            <div className="w-full bg-black text-white h-screen font-bold flex flex-col max-w-xl">
+            <div className="w-full bg-black text-white h-200vh font-bold flex flex-col max-w-xl">
                 <div>
                     <h1>Top Players</h1>
                     <table style={{ borderCollapse: 'collapse', width: '100%' }}>

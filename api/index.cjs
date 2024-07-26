@@ -83,29 +83,7 @@ app.get('/api/clicks', (req, res) => {
         }
 
         const row = result.rows[0];
-        const clicks = row.clicks;
-        const auto_clicks = row.auto_clicks;
-        const lastTimestamp = row.timestamp; // timestamp в формате TIMESTAMP
-
-        if (!lastTimestamp) {
-            // Если timestamp отсутствует, возвращаем clicks как есть, без добавления
-            return res.json({ clicks: clicks, auto_clicks: auto_clicks });
-        }
-
-        // Преобразуем lastTimestamp в объект Date
-        const lastTimestampDate = new Date(lastTimestamp);
-        const now = new Date();
-
-        // Определите разницу во времени в часах
-        const hoursElapsed = (now - lastTimestampDate) / (1000 * 60 * 60); // разница в часах
-
-        // Рассчитайте увеличение clicks
-        const addedClicks = Math.floor(hoursElapsed * auto_clicks);
-
-        // Обновленное значение clicks
-        const updatedClicks = clicks + addedClicks;
-
-        res.json({ clicks: updatedClicks, auto_clicks: auto_clicks });
+        res.json({ clicks: row.clicks, auto_clicks: row.auto_clicks, timestamp: row.timestamp });
     });
 });
 
@@ -173,13 +151,21 @@ app.post('/api/upgrade', (req, res) => {
 });
 
 app.get('/api/top-players', (req, res) => {
-    const limit = 3;
-    client.query("SELECT username, clicks FROM players ORDER BY clicks DESC LIMIT $1", [limit], (err, result) => {
+    const limit = 20;
+    client.query("SELECT username, auto_clicks FROM players LIMIT $1", [limit], (err, result) => {
         if (err) {
             console.error('Error fetching top players:', err.stack);
             return res.status(500).json({ error: 'Database error' });
         }
-        res.json({ players: result.rows });
+        // Применяем calculateClicks к каждому игроку
+        const playersWithUpdatedClicks = result.rows.map(row => ({
+            username: row.username,
+            clicks: row.auto_clicks
+        }));
+
+        playersWithUpdatedClicks.sort((a, b) => b.clicks - a.clicks);
+
+        res.json({ players: playersWithUpdatedClicks });
     });
 });
 

@@ -1,8 +1,7 @@
-import { DateTime } from 'luxon';
-
 type ClicksResponse = {
     clicks: number;
     auto_clicks: number;
+    timestamp: string;
 };
 
 export const fetchClicks = async (
@@ -19,7 +18,7 @@ export const fetchClicks = async (
         const data: ClicksResponse = await response.json();
         setPoints(data.clicks);
         setProfitPerHour(data.auto_clicks);
-        setLastTimestamp(DateTime.now().toISO());
+        setLastTimestamp(data.timestamp);
     } catch (error) {
         console.error('Error fetching clicks:', error);
     }

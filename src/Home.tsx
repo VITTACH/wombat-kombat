@@ -61,17 +61,6 @@ const Home: React.FC = () => {
             setUserId(user.id);
         }
 
-        if (lastTimestamp) {
-            const lastTimestampDate = DateTime.fromISO(lastTimestamp);
-            const now = DateTime.now();
-            // Вычисляем разницу в часах
-            const hoursElapsed = now.diff(lastTimestampDate, 'hours').as('hours');
-
-            // Рассчитайте увеличение clicks
-            setPoints(points + Math.floor(hoursElapsed * profitPerHour));
-            setLastTimestamp(now.toISO());
-        }
-
         const updateCountdowns = () => {
             setDailyRewardTimeLeft(calculateTimeLeft(0));
             setDailyCipherTimeLeft(calculateTimeLeft(19));
@@ -84,6 +73,19 @@ const Home: React.FC = () => {
         setIsMounted(true);
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        var addedPoints = 0;
+        if (lastTimestamp) {
+            // Сколько насыпать за возвращение
+            const lastTimestampDate = DateTime.fromISO(lastTimestamp);
+            const now = DateTime.now();
+            const hoursElapsed = now.diff(lastTimestampDate, 'hours').as('hours');
+            addedPoints = Math.floor(hoursElapsed * profitPerHour);
+            setLastTimestamp(now.toISO());
+        }
+        setPoints(points + addedPoints);
+    }, [lastTimestamp]);
 
     const calculateTimeLeft = (targetHour: number) => {
         const now = new Date();
