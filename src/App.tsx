@@ -16,16 +16,16 @@ const App: React.FC = () => {
     const { setPoints, setProfitPerHour, setLastTimestamp } = useContext(PointsContext);
 
     useEffect(() => {
+        const user = window.Telegram.WebApp.initDataUnsafe.user;
+        if (user && user.username) {
+            setUserId(user.id);
+        }
+
         fetchClicks(userId, setPoints, setProfitPerHour, setLastTimestamp);
     }, [])
 
     useEffect(() => {
         WebApp.ready();
-
-        const user = window.Telegram.WebApp.initDataUnsafe.user;
-        if (user && user.username) {
-            setUserId(user.id);
-        }
 
         // Обработка нажатия кнопки "назад"
         WebApp.BackButton.onClick(() => {
