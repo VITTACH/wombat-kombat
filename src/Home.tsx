@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import './App.css';
 import Hamster from './icons/Hamster';
 import { binanceLogo, dailyCipher, dailyCombo, dailyReward, dollarCoin, hamsterCoin, mainCharacter } from './images';
@@ -8,11 +8,9 @@ import Mine from './icons/Mine';
 import Friends from './icons/Friends';
 import Coins from './icons/Coins';
 import { Link } from 'react-router-dom';
-
-type ClicksResponse = {
-    clicks: number;
-    auto_clicks: number;
-};
+import { PointsContext } from './PointsContext';
+import { DateTime } from 'luxon';
+import { fetchClicks } from './fetchClicks';
 
 const Home: React.FC = () => {
     const levelNames = [
@@ -41,9 +39,8 @@ const Home: React.FC = () => {
         1000000000// Lord
     ];
 
-
     const [levelIndex, setLevelIndex] = useState(6);
-    const [points, setPoints] = useState(0);
+    const { points, setPoints, profitPerHour, setProfitPerHour, lastTimestamp, setLastTimestamp } = useContext(PointsContext);
     const [clicks, setClicks] = useState<{ id: number, x: number, y: number }[]>([]);
     const pointsToAdd = 11;
 
@@ -53,13 +50,9 @@ const Home: React.FC = () => {
     const [username, setUsername] = useState<string | null>("vittach");
     const [userId, setUserId] = useState("-1");
 
-    const [profitPerHour, setAutoClicks] = useState<number>(0);
-
     const [isMounted, setIsMounted] = useState(false); // состояние для отслеживания загрузки страницы
 
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
+    const delayRef = useRef<NodeJS.Timeout | null>(null); // Для хранения таймера
 
     useEffect(() => {
         const user = window.Telegram.WebApp.initDataUnsafe.user;
@@ -67,6 +60,29 @@ const Home: React.FC = () => {
             setUsername(user.username);
             setUserId(user.id);
         }
+
+        if (lastTimestamp) {
+            const lastTimestampDate = DateTime.fromISO(lastTimestamp);
+            const now = DateTime.now();
+            // Вычисляем разницу в часах
+            const hoursElapsed = now.diff(lastTimestampDate, 'hours').as('hours');
+
+            // Рассчитайте увеличение clicks
+            setPoints(points + Math.floor(hoursElapsed * profitPerHour));
+            setLastTimestamp(now.toISO());
+        }
+
+        const updateCountdowns = () => {
+            setDailyRewardTimeLeft(calculateTimeLeft(0));
+            setDailyCipherTimeLeft(calculateTimeLeft(19));
+            setDailyComboTimeLeft(calculateTimeLeft(12));
+        };
+
+        updateCountdowns();
+        const interval = setInterval(updateCountdowns, 60000); // Update every minute
+
+        setIsMounted(true);
+        return () => clearInterval(interval);
     }, []);
 
     const calculateTimeLeft = (targetHour: number) => {
@@ -87,19 +103,6 @@ const Home: React.FC = () => {
 
         return `${paddedHours}:${paddedMinutes}`;
     };
-
-    useEffect(() => {
-        const updateCountdowns = () => {
-            setDailyRewardTimeLeft(calculateTimeLeft(0));
-            setDailyCipherTimeLeft(calculateTimeLeft(19));
-            setDailyComboTimeLeft(calculateTimeLeft(12));
-        };
-
-        updateCountdowns();
-        const interval = setInterval(updateCountdowns, 60000); // Update every minute
-
-        return () => clearInterval(interval);
-    }, []);
 
     const applyCardTransform = (
         e: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>,
@@ -170,18 +173,17 @@ const Home: React.FC = () => {
         return () => clearInterval(interval);
     }, [profitPerHour]);
 
-    useEffect(() => {
-        fetchClicks();
-    }, []);
-
-    const fetchClicks = async () => {
-        const response = await fetch(`/api/clicks?userId=${userId}`);
-        const data: ClicksResponse = await response.json();
-        setPoints(data.clicks);
-        setAutoClicks(data.auto_clicks);
+    const updateClicks = async (newClicks: number) => {
+        setPoints(newClicks);
+        if (delayRef.current) {
+            clearTimeout(delayRef.current); // сброс таймера
+        }
+        delayRef.current = setTimeout(async () => {
+            forceUpdateClicks(newClicks);
+        }, 1000); // Задержка в 1 секунду
     };
 
-    const updateClicks = async (newClicks: number) => {
+    const forceUpdateClicks = async (newClicks: number) => {
         await fetch(`/api/clicks`, {
             method: 'POST',
             headers: {
@@ -189,7 +191,6 @@ const Home: React.FC = () => {
             },
             body: JSON.stringify({ userId, username, clicks: newClicks })
         });
-        fetchClicks();
     };
 
     const handleBuyUpgrade = () => {
@@ -206,7 +207,7 @@ const Home: React.FC = () => {
         });
         const data = await response.json();
         if (data.success) {
-            fetchClicks();
+            fetchClicks(userId, setPoints, setProfitPerHour, setLastTimestamp);
         } else {
             alert('Недостаточно кликов');
         }

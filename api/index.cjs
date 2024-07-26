@@ -28,13 +28,36 @@ client.query(`
         userId TEXT PRIMARY KEY,
         username TEXT,
         clicks INTEGER DEFAULT 0,
-        auto_clicks INTEGER DEFAULT 0
+        auto_clicks INTEGER DEFAULT 0,
+        timestamp TIMESTAMPTZ
     )
 `, (err) => {
     if (err) {
         console.error('Error creating table:', err.stack);
     } else {
         console.log('Table created or verified successfully.');
+    }
+});
+
+// Добавление поля `timestamp`, если таблица уже существует и поле отсутствует
+client.query(`
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_name='players' AND column_name='timestamp'
+        ) THEN
+            ALTER TABLE players
+            ADD COLUMN timestamp TIMESTAMPTZ;
+        END IF;
+    END
+    $$;
+`, (err) => {
+    if (err) {
+        console.error('Error adding timestamp column:', err.stack);
+    } else {
+        console.log('Timestamp column added successfully.');
     }
 });
 
@@ -48,12 +71,41 @@ app.get('/api/clicks', (req, res) => {
     if (!userId) {
         return res.status(400).json({ error: 'User ID is required' });
     }
-    client.query("SELECT clicks, auto_clicks FROM players WHERE userId = $1", [userId], (err, result) => {
+
+    client.query("SELECT clicks, auto_clicks, timestamp FROM players WHERE userId = $1", [userId], (err, result) => {
         if (err) {
             console.error('Error fetching data:', err.stack);
             return res.status(500).json({ error: 'Database error' });
         }
-        res.json({ clicks: result.rows.length ? result.rows[0].clicks : 0, auto_clicks: result.rows.length ? result.rows[0].auto_clicks : 0 });
+
+        if (result.rows.length === 0) {
+            return res.json({ clicks: 0, auto_clicks: 0 });
+        }
+
+        const row = result.rows[0];
+        const clicks = row.clicks;
+        const auto_clicks = row.auto_clicks;
+        const lastTimestamp = row.timestamp; // timestamp в формате TIMESTAMP
+
+        if (!lastTimestamp) {
+            // Если timestamp отсутствует, возвращаем clicks как есть, без добавления
+            return res.json({ clicks: clicks, auto_clicks: auto_clicks });
+        }
+
+        // Преобразуем lastTimestamp в объект Date
+        const lastTimestampDate = new Date(lastTimestamp);
+        const now = new Date();
+
+        // Определите разницу во времени в часах
+        const hoursElapsed = (now - lastTimestampDate) / (1000 * 60 * 60); // разница в часах
+
+        // Рассчитайте увеличение clicks
+        const addedClicks = Math.floor(hoursElapsed * auto_clicks);
+
+        // Обновленное значение clicks
+        const updatedClicks = clicks + addedClicks;
+
+        res.json({ clicks: updatedClicks, auto_clicks: auto_clicks });
     });
 });
 
@@ -63,7 +115,7 @@ app.post('/api/clicks', (req, res) => {
         return res.status(400).json({ error: 'User ID, username, and clicks are required' });
     }
     client.query(
-        "INSERT INTO players (userId, username, clicks) VALUES ($1, $2, $3) ON CONFLICT(userId) DO UPDATE SET clicks = EXCLUDED.clicks",
+        "INSERT INTO players (userId, username, clicks, timestamp) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) ON CONFLICT(userId) DO UPDATE SET clicks = EXCLUDED.clicks, timestamp = CURRENT_TIMESTAMP",
         [userId, username, clicks],
         (err) => {
             if (err) {

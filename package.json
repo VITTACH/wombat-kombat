@@ -13,12 +13,14 @@
     "@types/react-router-dom": "^5.3.3",
     "@vercel/postgres": "^0.9.0",
     "express": "^4.19.2",
+    "luxon": "^3.4.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.24.1",
     "telegraf": "^4.16.3"
   },
   "devDependencies": {
+    "@types/luxon": "^3.4.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",
