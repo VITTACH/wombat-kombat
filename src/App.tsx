@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './Home';
 import About from './About';
@@ -17,7 +17,7 @@ const App: React.FC = () => {
     useEffect(() => {
         const user = window.Telegram.WebApp.initDataUnsafe.user;
         var userId = "-1";
-        if (user && user.username) {
+        if (user && user.id) {
             userId = user.id
         }
 

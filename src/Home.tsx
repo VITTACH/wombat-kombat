@@ -47,7 +47,7 @@ const Home: React.FC = () => {
     const [dailyRewardTimeLeft, setDailyRewardTimeLeft] = useState("");
     const [dailyCipherTimeLeft, setDailyCipherTimeLeft] = useState("");
     const [dailyComboTimeLeft, setDailyComboTimeLeft] = useState("");
-    const [username, setUsername] = useState<string | null>("vittach");
+    const [username, setUsername] = useState<string | null>("test");
     const [userId, setUserId] = useState("-1");
 
     const [isMounted, setIsMounted] = useState(false); // состояние для отслеживания загрузки страницы
