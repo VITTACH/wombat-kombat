@@ -7,8 +7,8 @@ interface PointsContextType {
     setPoints: React.Dispatch<React.SetStateAction<number>>;
     profitPerHour: number;
     setProfitPerHour: React.Dispatch<React.SetStateAction<number>>;
-    lastTimestamp: string; // Добавлено поле для хранения даты и времени
-    setLastTimestamp: React.Dispatch<React.SetStateAction<string>>; // Функция для обновления lastTimestamp
+    lastTimestamp: string;
+    setLastTimestamp: React.Dispatch<React.SetStateAction<string>>;
 }
 
 // Дефолтное значение контекста

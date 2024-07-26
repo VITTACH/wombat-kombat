@@ -16,12 +16,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const user = window.Telegram.WebApp.initDataUnsafe.user;
-        var userId = "-1";
-        if (user && user.id) {
-            userId = user.id
-        }
-
-        fetchClicks(userId, setPoints, setProfitPerHour, setLastTimestamp);
+        fetchClicks(user ? user.id : "-1", setPoints, setProfitPerHour, setLastTimestamp);
     }, [])
 
     useEffect(() => {

@@ -56,8 +56,10 @@ const Home: React.FC = () => {
 
     useEffect(() => {
         const user = window.Telegram.WebApp.initDataUnsafe.user;
-        if (user && user.username) {
-            setUsername(user.username);
+        if (user) {
+            if (user.username) {
+                setUsername(user.username);
+            }
             setUserId(user.id);
         }
 
