@@ -55,14 +55,6 @@ const Home: React.FC = () => {
     const delayRef = useRef<NodeJS.Timeout | null>(null); // Для хранения таймера
 
     useEffect(() => {
-        const user = window.Telegram.WebApp.initDataUnsafe.user;
-        if (user) {
-            if (user.username) {
-                setUsername(user.username);
-            }
-            setUserId(user.id);
-        }
-
         const updateCountdowns = () => {
             setDailyRewardTimeLeft(calculateTimeLeft(0));
             setDailyCipherTimeLeft(calculateTimeLeft(19));
@@ -77,6 +69,16 @@ const Home: React.FC = () => {
     }, []);
 
     useEffect(() => {
+        const user = window.Telegram.WebApp.initDataUnsafe.user;
+        if (user) {
+            if (user.username) {
+                setUsername(user.username);
+            }
+            setUserId(user.id);
+        }
+    }, []);
+    
+    useEffect(() => {
         var addedPoints = 0;
         if (lastTimestamp) {
             // Сколько насыпать за возвращение
@@ -87,7 +89,25 @@ const Home: React.FC = () => {
             setLastTimestamp(now.toISO());
         }
         setPoints(points + addedPoints);
-    }, []);
+    }, [profitPerHour]);
+
+    useEffect(() => {
+        const currentLevelMin = levelMinPoints[levelIndex];
+        const nextLevelMin = levelMinPoints[levelIndex + 1];
+        if (points >= nextLevelMin && levelIndex < levelNames.length - 1) {
+            setLevelIndex(levelIndex + 1);
+        } else if (points < currentLevelMin && levelIndex > 0) {
+            setLevelIndex(levelIndex - 1);
+        }
+    }, [points, levelIndex]);
+
+    useEffect(() => {
+        const pointsPerSecond = Math.floor(profitPerHour / 3600);
+        const interval = setInterval(() => {
+            setPoints(prevPoints => prevPoints + pointsPerSecond);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [profitPerHour]);
 
     const calculateTimeLeft = (targetHour: number) => {
         const now = new Date();
@@ -152,30 +172,12 @@ const Home: React.FC = () => {
         return Math.min(progress, 100);
     };
 
-    useEffect(() => {
-        const currentLevelMin = levelMinPoints[levelIndex];
-        const nextLevelMin = levelMinPoints[levelIndex + 1];
-        if (points >= nextLevelMin && levelIndex < levelNames.length - 1) {
-            setLevelIndex(levelIndex + 1);
-        } else if (points < currentLevelMin && levelIndex > 0) {
-            setLevelIndex(levelIndex - 1);
-        }
-    }, [points, levelIndex, levelMinPoints, levelNames.length]);
-
     const formatProfitPerHour = (profit: number) => {
         if (profit >= 1000000000) return `+${(profit / 1000000000).toFixed(2)}B`;
         if (profit >= 1000000) return `+${(profit / 1000000).toFixed(2)}M`;
         if (profit >= 1000) return `+${(profit / 1000).toFixed(2)}K`;
         return `+${profit}`;
     };
-
-    useEffect(() => {
-        const pointsPerSecond = Math.floor(profitPerHour / 3600);
-        const interval = setInterval(() => {
-            setPoints(prevPoints => prevPoints + pointsPerSecond);
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [profitPerHour]);
 
     const updateClicks = async (newClicks: number) => {
         setPoints(newClicks);

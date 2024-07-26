@@ -14,9 +14,13 @@ const App: React.FC = () => {
 
     const { setPoints, setProfitPerHour, setLastTimestamp } = useContext(PointsContext);
 
+    var isLoaded = false
+
     useEffect(() => {
+        if (isLoaded) return;
         const user = window.Telegram.WebApp.initDataUnsafe.user;
         fetchClicks(user ? user.id : "-1", setPoints, setProfitPerHour, setLastTimestamp);
+        isLoaded = true;
     }, [])
 
     useEffect(() => {
