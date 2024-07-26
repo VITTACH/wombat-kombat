@@ -12,13 +12,13 @@ const App: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [userId, setUserId] = useState("-1");
     const { setPoints, setProfitPerHour, setLastTimestamp } = useContext(PointsContext);
 
     useEffect(() => {
         const user = window.Telegram.WebApp.initDataUnsafe.user;
+        var userId = "-1";
         if (user && user.username) {
-            setUserId(user.id);
+            userId = user.id
         }
 
         fetchClicks(userId, setPoints, setProfitPerHour, setLastTimestamp);
