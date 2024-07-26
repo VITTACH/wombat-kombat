@@ -87,7 +87,7 @@ const Home: React.FC = () => {
             setLastTimestamp(now.toISO());
         }
         setPoints(points + addedPoints);
-    }, [lastTimestamp]);
+    }, []);
 
     const calculateTimeLeft = (targetHour: number) => {
         const now = new Date();
