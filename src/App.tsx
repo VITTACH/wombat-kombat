@@ -13,7 +13,7 @@ const App: React.FC = () => {
     const location = useLocation();
 
     const [userId, setUserId] = useState("-1");
-    const { points, setPoints, profitPerHour, setProfitPerHour, lastTimestamp, setLastTimestamp } = useContext(PointsContext);
+    const { setPoints, setProfitPerHour, setLastTimestamp } = useContext(PointsContext);
 
     useEffect(() => {
         fetchClicks(userId, setPoints, setProfitPerHour, setLastTimestamp);
