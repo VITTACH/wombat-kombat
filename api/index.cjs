@@ -112,9 +112,9 @@ app.post('/api/upgrade', (req, res) => {
     }
 
     const upgrades = {
-        1: { cost: 10, auto_clicks: 10000 },
-        2: { cost: 100, auto_clicks: 50000 },
-        3: { cost: 1000, auto_clicks: 150000 },
+        1: { cost: 10, auto_clicks: 1000 },
+        2: { cost: 100, auto_clicks: 5000 },
+        3: { cost: 1000, auto_clicks: 15000 },
     };
 
     const upgrade = upgrades[level];

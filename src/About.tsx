@@ -30,14 +30,30 @@ const About: React.FC = () => {
     return (
         <div className="bg-black flex justify-center">
             <div className="w-full bg-black text-white h-200vh font-bold flex flex-col max-w-xl">
-                <div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <h1>Top Players</h1>
                     <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                         <tbody id="top-players">
                             {topPlayers.map((player, index) => (
                                 <tr key={index}>
-                                    <td style={{ border: '1px solid white', padding: '8px' }}>@{player.username}</td>
-                                    <td style={{ border: '1px solid white', padding: '8px' }}>{player.clicks}</td>
+                                    <td style={{
+                                        borderTop: index === 0 ? 'none' : '1px solid white',
+                                        borderBottom: index === topPlayers.length - 1 ? 'none' : '1px solid white',
+                                        borderLeft: 'none',
+                                        borderRight: '1px solid white',
+                                        padding: '8px'
+                                    }}>
+                                        @{player.username}
+                                    </td>
+                                    <td style={{
+                                        borderTop: index === 0 ? 'none' : '1px solid white',
+                                        borderBottom: index === topPlayers.length - 1 ? 'none' : '1px solid white',
+                                        borderLeft: '1px solid white',
+                                        borderRight: 'none',
+                                        padding: '8px'
+                                    }}>
+                                        {player.clicks}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

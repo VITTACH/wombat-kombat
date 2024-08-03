@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
-import './App.css';
-import Hamster from './icons/Hamster';
-import { binanceLogo, dailyCipher, dailyCombo, dailyReward, dollarCoin, hamsterCoin, mainCharacter } from './images';
-import Info from './icons/Info';
-import Settings from './icons/Settings';
-import Mine from './icons/Mine';
-import Friends from './icons/Friends';
-import Coins from './icons/Coins';
-import { Link } from 'react-router-dom';
-import { PointsContext } from './PointsContext';
 import { DateTime } from 'luxon';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import './App.css';
 import { fetchClicks } from './fetchClicks';
+import Coins from './icons/Coins';
+import Friends from './icons/Friends';
+import Hamster from './icons/Hamster';
+import Info from './icons/Info';
+import Mine from './icons/Mine';
+import Settings from './icons/Settings';
+import { binanceLogo, dailyCipher, dailyCombo, dailyReward, dollarCoin, hamsterCoin, mainCharacter } from './images';
+import { PointsContext } from './PointsContext';
 
 const Home: React.FC = () => {
     const levelNames = [
@@ -54,6 +54,10 @@ const Home: React.FC = () => {
 
     const delayRef = useRef<NodeJS.Timeout | null>(null); // Для хранения таймера
 
+    const MAX_MINING_HOURS = 3;
+
+    const canvasRef = useRef(null);
+
     useEffect(() => {
         const updateCountdowns = () => {
             setDailyRewardTimeLeft(calculateTimeLeft(0));
@@ -77,14 +81,14 @@ const Home: React.FC = () => {
             setUserId(user.id);
         }
     }, []);
-    
+
     useEffect(() => {
         var addedPoints = 0;
         if (lastTimestamp) {
             // Сколько насыпать за возвращение
             const lastTimestampDate = DateTime.fromISO(lastTimestamp);
             const now = DateTime.now();
-            const hoursElapsed = now.diff(lastTimestampDate, 'hours').as('hours');
+            const hoursElapsed = Math.min(MAX_MINING_HOURS, now.diff(lastTimestampDate, 'hours').as('hours'));
             addedPoints = Math.floor(hoursElapsed * profitPerHour);
             setLastTimestamp(now.toISO());
         }
@@ -200,6 +204,9 @@ const Home: React.FC = () => {
     };
 
     const handleBuyUpgrade = () => {
+        const ctx = canvasRef.current.getContext('2d');
+
+        animateCircle(ctx);
         buyUpgrade(1);
     };
 
@@ -217,6 +224,92 @@ const Home: React.FC = () => {
         } else {
             alert('Недостаточно кликов');
         }
+    };
+
+    const drawCircle = (ctx, progress: number) => {
+        const radius = 48;
+        const centerX = 50;
+        const centerY = 50;
+        const startAngle = -Math.PI / 2;
+        const endAngle = 2 * Math.PI * progress + startAngle;
+
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'yellow';
+        ctx.stroke();
+    };
+
+    const animateCircle = (ctx) => {
+        let startTime: number;
+        const duration = 5000;
+        const particles: any[] = [];
+
+        const createParticle = (x: number, y: number) => {
+            const particle = {
+                x: x,
+                y: y,
+                radius: Math.random() * 2 + 1,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                alpha: 1
+            };
+            particles.push(particle);
+        };
+
+        const updateParticles = () => {
+            for (let i = 0; i < particles.length; i++) {
+                const particle = particles[i];
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.alpha -= 0.01;
+                if (particle.alpha <= 0) {
+                    particles.splice(i, 1);
+                    i--;
+                }
+            }
+        };
+
+        const drawParticles = () => {
+            for (const particle of particles) {
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${particle.alpha})`;
+                ctx.fill();
+            }
+        };
+
+        const animate = (timestamp: number) => {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            // Clear canvas
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+            // Draw the circle with animation
+            drawCircle(ctx, progress);
+
+            // Generate particles
+            if (progress < 1) {
+                const angle = progress * 2 * Math.PI - Math.PI / 2;
+                const x = 50 + 48 * Math.cos(angle);
+                const y = 50 + 48 * Math.sin(angle);
+                createParticle(x, y);
+            }
+
+            // Update and draw particles
+            updateParticles();
+            drawParticles();
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            }
+        };
+
+        requestAnimationFrame(animate);
     };
 
     return (
@@ -266,13 +359,14 @@ const Home: React.FC = () => {
                     <div className="absolute top-[2px] left-0 right-0 bottom-0 bg-[#1d2025] rounded-t-[46px]">
                         <div className={`shake ${isMounted ? 'active' : ''}`}>
                             <div className="px-4 mt-6 flex justify-between gap-2">
-                                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative"
-                                    onClick={handleBuyUpgrade}
-                                >
-                                    <div className="dot"></div>
-                                    <img src={dailyReward} alt="Daily Reward" className="mx-auto w-12 h-12" />
-                                    <p className="text-[10px] text-center text-white mt-1">Daily reward</p>
-                                    <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyRewardTimeLeft}</p>
+                                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" onClick={handleBuyUpgrade}>
+                                    <canvas ref={canvasRef} id="particles-canvas" width="100" height="100"></canvas>
+                                    <div className="content">
+                                        <div className="dot"></div>
+                                        <img src={dailyReward} alt="Daily Reward" className="mx-auto w-12 h-12" />
+                                        <p className="text-[10px] text-center text-white mt-1">Daily reward</p>
+                                        <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyRewardTimeLeft}</p>
+                                    </div>
                                 </div>
                                 <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative">
                                     <div className="dot"></div>
