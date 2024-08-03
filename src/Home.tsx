@@ -56,7 +56,7 @@ const Home: React.FC = () => {
 
     const MAX_MINING_HOURS = 3;
 
-    const canvasRef = useRef(null);
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     useEffect(() => {
         const updateCountdowns = () => {
@@ -204,9 +204,11 @@ const Home: React.FC = () => {
     };
 
     const handleBuyUpgrade = () => {
-        const ctx = canvasRef.current.getContext('2d');
-
-        animateCircle(ctx);
+        const canvas = canvasRef.current;
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            if (ctx) animateCircle(ctx);
+        }
         buyUpgrade(1);
     };
 
@@ -226,7 +228,7 @@ const Home: React.FC = () => {
         }
     };
 
-    const drawCircle = (ctx, progress: number) => {
+    const drawCircle = (ctx: CanvasRenderingContext2D, progress: number) => {
         const radius = 48;
         const centerX = 50;
         const centerY = 50;
@@ -240,7 +242,7 @@ const Home: React.FC = () => {
         ctx.stroke();
     };
 
-    const animateCircle = (ctx) => {
+    const animateCircle = (ctx: CanvasRenderingContext2D) => {
         let startTime: number;
         const duration = 5000;
         const particles: any[] = [];
