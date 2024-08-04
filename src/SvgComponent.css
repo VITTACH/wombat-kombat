@@ -5,25 +5,32 @@
     width: 100%;
     height: 100%;
     transform: rotate(-90deg);
-  }
-  
-  #circle-path {
+}
+
+:root {
+    --pi: 3.14159265358979;
+    --diameter: 46px;
+    --circumference: calc(2 * var(--pi) * var(--diameter));
+}
+
+#circle-path {
     fill: none;
     stroke: rgb(255, 213, 0);
     stroke-width: 4;
-    stroke-dasharray: 301.44;
-    stroke-dashoffset: 301.44;
-  }
-  
-  .test #circle-path {  
+    stroke-dasharray: var(--circumference);
+    stroke-dashoffset: var(--circumference);
+}
+
+.test #circle-path {
     animation: ani1 10s linear forwards;
-  }
-  
-  @keyframes ani1 {
+}
+
+@keyframes ani1 {
     from {
-      stroke-dashoffset: 301.44;
+        stroke-dashoffset: var(--circumference);
     }
+
     to {
-      stroke-dashoffset: 0;
+        stroke-dashoffset: 0;
     }
-  }
+}

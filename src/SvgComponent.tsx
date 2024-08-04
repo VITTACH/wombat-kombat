@@ -55,7 +55,7 @@ const SvgComponent: React.FC<SvgComponentProps> = ({ width, height }) => {
             for (const particle of particles) {
                 ctx.beginPath();
                 ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${particle.alpha})`;
+                ctx.fillStyle = `rgba(255, 213, 0, ${particle.alpha})`;
                 ctx.fill();
             }
         };
