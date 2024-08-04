@@ -31,8 +31,8 @@ const SvgComponent: React.FC<SvgComponentProps> = ({ width, height }) => {
                 x: x,
                 y: y,
                 radius: Math.random() * 2 + 1,
-                vx: (Math.random() - 0.5),
-                vy: (Math.random() - 0.5),
+                vx: (Math.random() - 0.5) / 2,
+                vy: (Math.random() - 0.5) / 2,
                 alpha: 1
             };
             particles.push(particle);
@@ -69,8 +69,8 @@ const SvgComponent: React.FC<SvgComponentProps> = ({ width, height }) => {
 
             if (progress < 1) {
                 const angle = progress * 2 * Math.PI - Math.PI / 2;
-                const x = width / 2 + (Math.min(width, height) / 2) * Math.cos(angle);
-                const y = height / 2 + (Math.min(width, height) / 2) * Math.sin(angle);
+                const x = width / 2 + (Math.min(width, height) / 2 + 4) * Math.cos(angle);
+                const y = height / 2 + (Math.min(width, height) / 2 - 4) * Math.sin(angle);
                 createParticle(x, y);
                 updateParticles();
                 drawParticles();
