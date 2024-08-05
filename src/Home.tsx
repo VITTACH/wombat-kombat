@@ -189,7 +189,7 @@ const Home: React.FC = () => {
         }
         delayRef.current = setTimeout(async () => {
             forceUpdateClicks(newClicks);
-        }, 1000); // Задержка в 1 секунду
+        }, 1000);
     };
 
     const forceUpdateClicks = async (newClicks: number) => {
