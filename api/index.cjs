@@ -29,7 +29,8 @@ client.query(`
         username TEXT,
         clicks INTEGER DEFAULT 0,
         auto_clicks INTEGER DEFAULT 0,
-        timestamp TIMESTAMPTZ
+        timestamp TIMESTAMPTZ,
+        combo_timestamp TIMESTAMPTZ
     )
 `, (err) => {
     if (err) {
@@ -43,6 +44,7 @@ client.query(`
 client.query(`
     DO $$
     BEGIN
+        -- Проверка и добавление столбца timestamp
         IF NOT EXISTS (
             SELECT 1
             FROM information_schema.columns
@@ -50,6 +52,16 @@ client.query(`
         ) THEN
             ALTER TABLE players
             ADD COLUMN timestamp TIMESTAMPTZ;
+        END IF;
+
+        -- Проверка и добавление столбца combo_timestamp
+        IF NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_name='players' AND column_name='combo_timestamp'
+        ) THEN
+            ALTER TABLE players
+            ADD COLUMN combo_timestamp TIMESTAMPTZ;
         END IF;
     END
     $$;

@@ -11,7 +11,7 @@ import Mine from './icons/Mine';
 import Settings from './icons/Settings';
 import { binanceLogo, dailyCipher, dailyCombo, dailyReward, dollarCoin, hamsterCoin, mainCharacter } from './images';
 import { PointsContext } from './PointsContext';
-import SvgComponent from './SvgComponent';
+import CircleProgress from './CircleProgress';
 
 const Home: React.FC = () => {
     const levelNames = [
@@ -56,6 +56,27 @@ const Home: React.FC = () => {
     const delayRef = useRef<NodeJS.Timeout | null>(null); // Для хранения таймера
 
     const MAX_MINING_HOURS = 3;
+
+    const [isAnimatingList, setIsAnimatingList] = useState([false, false, false]);;
+
+    const [cardPref, setcardPref] = useState({ width: 0, height: 0 });
+    const cardRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (cardRef.current) {
+            setcardPref({
+                width: cardRef.current.offsetWidth,
+                height: cardRef.current.offsetHeight,
+            });
+        }
+    }, []);
+
+    const updateAnimation = (index: number, value: boolean) => {
+        setIsAnimatingList(prevList => {
+            prevList[index] = value;
+            return prevList;
+        });
+    };
 
     useEffect(() => {
         const updateCountdowns = () => {
@@ -222,18 +243,6 @@ const Home: React.FC = () => {
         }
     };
 
-    const [parentDimensions, setParentDimensions] = useState({ width: 0, height: 0 });
-    const parentRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        if (parentRef.current) {
-            setParentDimensions({
-                width: parentRef.current.offsetWidth,
-                height: parentRef.current.offsetHeight,
-            });
-        }
-    }, []);
-
     const BlurFilter = () => (
         <svg width="0" height="0">
             <defs>
@@ -243,15 +252,6 @@ const Home: React.FC = () => {
             </defs>
         </svg>
     );
-    const [isAnimatingList, setIsAnimatingList] = useState([false, false, false]);;
-
-    const toggleAnimation = (index: number, value: boolean) => {
-        setIsAnimatingList(prevList => {
-          const newList = [...prevList];
-          newList[index] = value;
-          return newList;
-        });
-      };
 
     return (
         <div className="bg-black flex justify-center">
@@ -300,7 +300,7 @@ const Home: React.FC = () => {
                     <div className="absolute top-[2px] left-0 right-0 bottom-0 bg-[#1d2025] rounded-t-[46px]">
                         <div className={`shake ${isMounted ? 'active' : ''}`}>
                             <div className="px-4 mt-6 flex justify-between gap-2">
-                                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={parentRef} onClick={handleBuyUpgrade}>
+                                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={cardRef} onClick={handleBuyUpgrade}>
                                     <BlurFilter />
                                     <div className="dot"></div>
                                     <div style={{ filter: isAnimatingList[0] ? 'url(#blurFilter)' : 'none' }}>
@@ -308,9 +308,11 @@ const Home: React.FC = () => {
                                         <p className="text-[10px] text-center text-white mt-1">Daily reward</p>
                                         <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyRewardTimeLeft}</p>
                                     </div>
-                                    <SvgComponent width={parentDimensions.width} height={parentDimensions.height} setIsAnimating={(value) => toggleAnimation(0, value)} />
+                                    <CircleProgress width={cardPref.width} height={cardPref.height} setIsAnimating={
+                                        (isAnimating) => updateAnimation(0, isAnimating)
+                                    } />
                                 </div>
-                                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={parentRef}>
+                                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={cardRef}>
                                     <BlurFilter />
                                     <div className="dot"></div>
                                     <div style={{ filter: isAnimatingList[1] ? 'url(#blurFilter)' : 'none' }}>
@@ -318,9 +320,11 @@ const Home: React.FC = () => {
                                         <p className="text-[10px] text-center text-white mt-1">Daily cipher</p>
                                         <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyCipherTimeLeft}</p>
                                     </div>
-                                    <SvgComponent width={parentDimensions.width} height={parentDimensions.height} setIsAnimating={(value) => toggleAnimation(1, value)} />
+                                    <CircleProgress width={cardPref.width} height={cardPref.height} setIsAnimating={
+                                        (isAnimating) => updateAnimation(1, isAnimating)
+                                    } />
                                 </div>
-                                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={parentRef}>
+                                <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={cardRef}>
                                     <BlurFilter />
                                     <div className="dot"></div>
                                     <div style={{ filter: isAnimatingList[2] ? 'url(#blurFilter)' : 'none' }}>
@@ -328,7 +332,9 @@ const Home: React.FC = () => {
                                         <p className="text-[10px] text-center text-white mt-1">Daily combo</p>
                                         <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyComboTimeLeft}</p>
                                     </div>
-                                    <SvgComponent width={parentDimensions.width} height={parentDimensions.height} setIsAnimating={(value) => toggleAnimation(2, value)} />
+                                    <CircleProgress width={cardPref.width} height={cardPref.height} setIsAnimating={
+                                        (isAnimating) => updateAnimation(2, isAnimating)
+                                    } />
                                 </div>
                             </div>
                         </div>
