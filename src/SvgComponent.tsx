@@ -4,10 +4,11 @@ import './SvgComponent.css';
 interface SvgComponentProps {
     width: number;
     height: number;
+    setIsAnimating: (value: boolean) => void;
 }
 
-const SvgComponent: React.FC<SvgComponentProps> = ({ width, height }) => {
-    const [isAnimating, setIsAnimating] = useState(false);
+const SvgComponent: React.FC<SvgComponentProps> = ({ width, height, setIsAnimating }) => {
+    const [isAnimating, setLocalIsAnimating] = useState(false);
 
     const canvasParticalsRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -18,7 +19,13 @@ const SvgComponent: React.FC<SvgComponentProps> = ({ width, height }) => {
         if (ctx) {
             animateCircle(ctx);
         }
+        setLocalIsAnimating(true);
         setIsAnimating(true);
+    };
+
+    const cancelAnimation = () => {
+        setLocalIsAnimating(false);
+        setIsAnimating(false);
     };
 
     const animateCircle = (ctx: CanvasRenderingContext2D) => {
@@ -31,8 +38,8 @@ const SvgComponent: React.FC<SvgComponentProps> = ({ width, height }) => {
                 x: x,
                 y: y,
                 radius: Math.random() * 2 + 1,
-                vx: (Math.random() - 0.5) / 2,
-                vy: (Math.random() - 0.5) / 2,
+                vx: (Math.random() - 0.5) / 1.2,
+                vy: (Math.random() - 0.5) / 1.2,
                 alpha: 1
             };
             particles.push(particle);
@@ -69,8 +76,8 @@ const SvgComponent: React.FC<SvgComponentProps> = ({ width, height }) => {
 
             if (progress < 1) {
                 const angle = progress * 2 * Math.PI - Math.PI / 2;
-                const x = width / 2 + (Math.min(width, height) / 2 + 4) * Math.cos(angle);
-                const y = height / 2 + (Math.min(width, height) / 2 - 4) * Math.sin(angle);
+                const x = width / 2 + (Math.min(width, height) / 2 - 2) * Math.cos(angle);
+                const y = height / 2 + (Math.min(width, height) / 2 - 8) * Math.sin(angle);
                 createParticle(x, y);
                 updateParticles();
                 drawParticles();
@@ -83,17 +90,22 @@ const SvgComponent: React.FC<SvgComponentProps> = ({ width, height }) => {
 
     return (
         <div className={isAnimating ? 'test' : ''} onClick={handleClick}>
-            <svg className="circle-svg" viewBox="0 0 100 100" onAnimationEnd={() => setIsAnimating(false)}>
+            {
+                isAnimating && <svg className="circle-svg" viewBox="0 0 100 100">
+                    <circle id="background-circle-path" cx="50" cy="50" r="46" />
+                </svg>
+            }
+            <svg className="circle-svg" viewBox="0 0 100 100" onAnimationEnd={() => cancelAnimation()}>
                 <defs>
                     <filter id="blur-filter" x="-20%" y="-20%" width="140%" height="140%">
                         <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
                     </filter>
                     <mask id="mask">
-                        <circle cx="50" cy="50" r="46" fill="white" />
+                        <circle cx="50" cy="50" r="42" fill="white" />
                     </mask>
                 </defs>
-                <circle id="circle-path" cx="50" cy="50" r="46" />
-                <circle id="circle-path" cx="50" cy="50" r="46" filter="url(#blur-filter)" mask="url(#mask)" />
+                <circle id="circle-path" cx="50" cy="50" r="42" />
+                <circle id="circle-path" cx="50" cy="50" r="42" filter="url(#blur-filter)" mask="url(#mask)" />
             </svg>
             <canvas ref={canvasParticalsRef} id="particles-canvas" width={width} height={height}></canvas>
         </div>

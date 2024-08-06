@@ -9,7 +9,7 @@
 
 :root {
     --pi: 3.14159265358979;
-    --diameter: 46px;
+    --diameter: 42px;
     --circumference: calc(2 * var(--pi) * var(--diameter));
 }
 
@@ -33,4 +33,10 @@
     to {
         stroke-dashoffset: var(--circumference);
     }
+}
+
+#background-circle-path {
+    fill: rgba(40, 39, 37, 0.9);
+    stroke: rgb(66, 65, 63);
+    stroke-width: 4;
 }

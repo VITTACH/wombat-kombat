@@ -234,6 +234,25 @@ const Home: React.FC = () => {
         }
     }, []);
 
+    const BlurFilter = () => (
+        <svg width="0" height="0">
+            <defs>
+                <filter id="blurFilter" x="0" y="0">
+                    <feGaussianBlur stdDeviation="5" />
+                </filter>
+            </defs>
+        </svg>
+    );
+    const [isAnimatingList, setIsAnimatingList] = useState([false, false, false]);;
+
+    const toggleAnimation = (index: number, value: boolean) => {
+        setIsAnimatingList(prevList => {
+          const newList = [...prevList];
+          newList[index] = value;
+          return newList;
+        });
+      };
+
     return (
         <div className="bg-black flex justify-center">
             <div className="w-full bg-black text-white h-200vh font-bold flex flex-col max-w-xl">
@@ -282,25 +301,34 @@ const Home: React.FC = () => {
                         <div className={`shake ${isMounted ? 'active' : ''}`}>
                             <div className="px-4 mt-6 flex justify-between gap-2">
                                 <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={parentRef} onClick={handleBuyUpgrade}>
-                                    <SvgComponent width={parentDimensions.width} height={parentDimensions.height} />
+                                    <BlurFilter />
                                     <div className="dot"></div>
-                                    <img src={dailyReward} alt="Daily Reward" className="mx-auto w-12 h-12" />
-                                    <p className="text-[10px] text-center text-white mt-1">Daily reward</p>
-                                    <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyRewardTimeLeft}</p>
+                                    <div style={{ filter: isAnimatingList[0] ? 'url(#blurFilter)' : 'none' }}>
+                                        <img src={dailyReward} alt="Daily Reward" className="mx-auto w-12 h-12" />
+                                        <p className="text-[10px] text-center text-white mt-1">Daily reward</p>
+                                        <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyRewardTimeLeft}</p>
+                                    </div>
+                                    <SvgComponent width={parentDimensions.width} height={parentDimensions.height} setIsAnimating={(value) => toggleAnimation(0, value)} />
                                 </div>
                                 <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={parentRef}>
-                                    <SvgComponent width={parentDimensions.width} height={parentDimensions.height} />
+                                    <BlurFilter />
                                     <div className="dot"></div>
-                                    <img src={dailyCipher} alt="Daily Cipher" className="mx-auto w-12 h-12" />
-                                    <p className="text-[10px] text-center text-white mt-1">Daily cipher</p>
-                                    <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyCipherTimeLeft}</p>
+                                    <div style={{ filter: isAnimatingList[1] ? 'url(#blurFilter)' : 'none' }}>
+                                        <img src={dailyCipher} alt="Daily Cipher" className="mx-auto w-12 h-12" />
+                                        <p className="text-[10px] text-center text-white mt-1">Daily cipher</p>
+                                        <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyCipherTimeLeft}</p>
+                                    </div>
+                                    <SvgComponent width={parentDimensions.width} height={parentDimensions.height} setIsAnimating={(value) => toggleAnimation(1, value)} />
                                 </div>
                                 <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={parentRef}>
-                                    <SvgComponent width={parentDimensions.width} height={parentDimensions.height} />
+                                    <BlurFilter />
                                     <div className="dot"></div>
-                                    <img src={dailyCombo} alt="Daily Combo" className="mx-auto w-12 h-12" />
-                                    <p className="text-[10px] text-center text-white mt-1">Daily combo</p>
-                                    <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyComboTimeLeft}</p>
+                                    <div style={{ filter: isAnimatingList[2] ? 'url(#blurFilter)' : 'none' }}>
+                                        <img src={dailyCombo} alt="Daily Combo" className="mx-auto w-12 h-12" />
+                                        <p className="text-[10px] text-center text-white mt-1">Daily combo</p>
+                                        <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyComboTimeLeft}</p>
+                                    </div>
+                                    <SvgComponent width={parentDimensions.width} height={parentDimensions.height} setIsAnimating={(value) => toggleAnimation(2, value)} />
                                 </div>
                             </div>
                         </div>
