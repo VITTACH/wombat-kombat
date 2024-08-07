@@ -57,8 +57,6 @@ const Home: React.FC = () => {
 
     const MAX_MINING_HOURS = 3;
 
-    const [isAnimatingList, setIsAnimatingList] = useState([false, false, false]);;
-
     const [cardPref, setcardPref] = useState({ width: 0, height: 0 });
     const cardRef = useRef<HTMLDivElement | null>(null);
 
@@ -70,13 +68,6 @@ const Home: React.FC = () => {
             });
         }
     }, []);
-
-    const updateAnimation = (index: number, value: boolean) => {
-        setIsAnimatingList(prevList => {
-            prevList[index] = value;
-            return prevList;
-        });
-    };
 
     useEffect(() => {
         const updateCountdowns = () => {
@@ -243,16 +234,6 @@ const Home: React.FC = () => {
         }
     };
 
-    const BlurFilter = () => (
-        <svg width="0" height="0">
-            <defs>
-                <filter id="blurFilter" x="0" y="0">
-                    <feGaussianBlur stdDeviation="5" />
-                </filter>
-            </defs>
-        </svg>
-    );
-
     return (
         <div className="bg-black flex justify-center">
             <div className="w-full bg-black text-white h-200vh font-bold flex flex-col max-w-xl">
@@ -301,40 +282,25 @@ const Home: React.FC = () => {
                         <div className={`shake ${isMounted ? 'active' : ''}`}>
                             <div className="px-4 mt-6 flex justify-between gap-2">
                                 <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={cardRef} onClick={handleBuyUpgrade}>
-                                    <BlurFilter />
                                     <div className="dot"></div>
-                                    <div style={{ filter: isAnimatingList[0] ? 'url(#blurFilter)' : 'none' }}>
-                                        <img src={dailyReward} alt="Daily Reward" className="mx-auto w-12 h-12" />
-                                        <p className="text-[10px] text-center text-white mt-1">Daily reward</p>
-                                        <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyRewardTimeLeft}</p>
-                                    </div>
-                                    <CircleProgress width={cardPref.width} height={cardPref.height} setIsAnimating={
-                                        (isAnimating) => updateAnimation(0, isAnimating)
-                                    } />
+                                    <img src={dailyReward} alt="Daily Reward" className="mx-auto w-12 h-12" />
+                                    <p className="text-[10px] text-center text-white mt-1">Daily reward</p>
+                                    <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyRewardTimeLeft}</p>
+                                    <CircleProgress width={cardPref.width} height={cardPref.height} setIsAnimating={() => { }} />
                                 </div>
                                 <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={cardRef}>
-                                    <BlurFilter />
                                     <div className="dot"></div>
-                                    <div style={{ filter: isAnimatingList[1] ? 'url(#blurFilter)' : 'none' }}>
-                                        <img src={dailyCipher} alt="Daily Cipher" className="mx-auto w-12 h-12" />
-                                        <p className="text-[10px] text-center text-white mt-1">Daily cipher</p>
-                                        <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyCipherTimeLeft}</p>
-                                    </div>
-                                    <CircleProgress width={cardPref.width} height={cardPref.height} setIsAnimating={
-                                        (isAnimating) => updateAnimation(1, isAnimating)
-                                    } />
+                                    <img src={dailyCipher} alt="Daily Cipher" className="mx-auto w-12 h-12" />
+                                    <p className="text-[10px] text-center text-white mt-1">Daily cipher</p>
+                                    <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyCipherTimeLeft}</p>
+                                    <CircleProgress width={cardPref.width} height={cardPref.height} setIsAnimating={() => { }} />
                                 </div>
                                 <div className="bg-[#272a2f] rounded-lg px-4 py-2 w-full relative" ref={cardRef}>
-                                    <BlurFilter />
                                     <div className="dot"></div>
-                                    <div style={{ filter: isAnimatingList[2] ? 'url(#blurFilter)' : 'none' }}>
-                                        <img src={dailyCombo} alt="Daily Combo" className="mx-auto w-12 h-12" />
-                                        <p className="text-[10px] text-center text-white mt-1">Daily combo</p>
-                                        <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyComboTimeLeft}</p>
-                                    </div>
-                                    <CircleProgress width={cardPref.width} height={cardPref.height} setIsAnimating={
-                                        (isAnimating) => updateAnimation(2, isAnimating)
-                                    } />
+                                    <img src={dailyCombo} alt="Daily Combo" className="mx-auto w-12 h-12" />
+                                    <p className="text-[10px] text-center text-white mt-1">Daily combo</p>
+                                    <p className="text-[10px] font-medium text-center text-gray-400 mt-2">{dailyComboTimeLeft}</p>
+                                    <CircleProgress width={cardPref.width} height={cardPref.height} setIsAnimating={() => { }} />
                                 </div>
                             </div>
                         </div>

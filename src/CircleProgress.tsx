@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import './CircleProgress.css';
 import { gsap } from 'gsap';
+import Clock from './icons/Clock';
 
 interface CircleProgressProps {
     width: number;
@@ -9,10 +10,11 @@ interface CircleProgressProps {
 }
 
 const CircleProgress: React.FC<CircleProgressProps> = ({ width, height, setIsAnimating }) => {
-    const [isAnimating, setLocalIsAnimating] = useState(false);
-
     const CIRCLE_RADIUS = 42;
-    const ANIMATION_DURATION = 6;
+    const ANIMATION_DURATION = 10;
+
+    const [isAnimating, setLocalIsAnimating] = useState(false);
+    const [remainingTime, setRemainingTime] = useState(ANIMATION_DURATION);
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const circleRef = useRef(null);
@@ -26,6 +28,7 @@ const CircleProgress: React.FC<CircleProgressProps> = ({ width, height, setIsAni
         }
         setLocalIsAnimating(true);
         setIsAnimating(true);
+        setRemainingTime(ANIMATION_DURATION);
     };
 
     useEffect(() => {
@@ -42,6 +45,18 @@ const CircleProgress: React.FC<CircleProgressProps> = ({ width, height, setIsAni
                     onComplete: endAnimation,
                 }
             );
+
+            const timerInterval = setInterval(() => {
+                setRemainingTime(prev => {
+                    if (prev <= 1) {
+                        clearInterval(timerInterval);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+            return () => clearInterval(timerInterval);
         }
     }, [isAnimating]);
 
@@ -59,7 +74,7 @@ const CircleProgress: React.FC<CircleProgressProps> = ({ width, height, setIsAni
             const particle = {
                 x: x,
                 y: y,
-                radius: Math.random() * 2 + 1,
+                radius: Math.random() * 1.2 + 1,
                 vx: (Math.random() - 0.5) / 1.2,
                 vy: (Math.random() - 0.5) / 1.2,
                 alpha: 1
@@ -117,6 +132,35 @@ const CircleProgress: React.FC<CircleProgressProps> = ({ width, height, setIsAni
         </svg>
     );
 
+    // Utility function to format time
+    const formatTime = (seconds: number) => {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        if (h > 0) {
+            return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        } else if (m > 0) {
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        } else {
+            return `${s} sec`;
+        }
+    };
+
+    // Define prop types for TimerComponent
+    interface TimerComponentProps {
+        remainingTime: number;
+    }
+
+    const TimerComponent: React.FC<TimerComponentProps> = ({ remainingTime }) => (
+        <div className="timer-container">
+            <svg viewBox="0 0 24 24" width="24" height="24" style={{ transform: 'rotate(90deg) scaleX(-1)' }}>
+                <Clock size={24} />
+            </svg>
+            <span>{formatTime(remainingTime)}</span>
+        </div>
+    );
+
     return (
         <div className={isAnimating ? 'test' : ''} onClick={handleClick}>
             {isAnimating && <BackgroundCircle />}
@@ -147,6 +191,7 @@ const CircleProgress: React.FC<CircleProgressProps> = ({ width, height, setIsAni
                     style={{ strokeDasharray: circumference, strokeDashoffset: circumference }}
                 />
             </svg>
+            {isAnimating && <TimerComponent remainingTime={remainingTime} />}
             <canvas ref={canvasRef} id="particles-canvas" width={width} height={height} />
         </div>
     );
